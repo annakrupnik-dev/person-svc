@@ -1,6 +1,9 @@
 package com.example.person;
 
 import com.example.JUnitTestUtil;
+import com.example.person.domain.PersonDataWrapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,10 +26,22 @@ public class PersonControllerTest {
     }
 
     @Test
-    public void getAllPersons(){
+    public void getAllPersons()  {
 
-        String url ="http://localhost:8080/persons";
+        String url ="/addresses/persons";
         String body = testUtil.executeGetRequest(url);
+        Assert.assertNotNull(body);
 
+        PersonDataWrapper obj=new PersonDataWrapper();
+        ObjectMapper mapper = new ObjectMapper();
+        //JSON string to Java Object
+
+        try {
+            obj = mapper.readValue(body, PersonDataWrapper.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        Assert.assertTrue(obj.getPersons().size()>0);
     }
 }

@@ -8,6 +8,8 @@ import java.util.Collection;
 
 public class JUnitTestUtil  {
 
+    private String baseUrl = "http://localhost:9090";
+
     public String executePostRequest(String url, Object requestBody) {
         return runTest(url, requestBody, HttpMethod.POST);
     }
@@ -17,7 +19,7 @@ public class JUnitTestUtil  {
     }
 
     public String executePutRequestWithCollections(String url,
-                                                   Collection<? extends Object> collectionClass) {
+                                                   Collection<?> collectionClass) {
         return runTest(url, collectionClass, HttpMethod.PUT);
     }
 
@@ -43,7 +45,7 @@ public class JUnitTestUtil  {
 
         HttpEntity<String> httpEntity = new HttpEntity<String>(convertObjectToJson, headers);
 
-        ResponseEntity<String> exchange = restTemplate.exchange(url, httpMethod, httpEntity, String.class);
+        ResponseEntity<String> exchange = restTemplate.exchange(baseUrl + url, httpMethod, httpEntity, String.class);
         String responseBody = exchange.getBody();
         log(httpMethod, url);
         log(convertObjectToJson, exchange.getStatusCode(), responseBody);
@@ -52,7 +54,7 @@ public class JUnitTestUtil  {
     }
 
     private void log(HttpMethod httpMethod, String url) {
-        System.out.println("FULL URL = " + url);
+        System.out.println("FULL URL = " + baseUrl + url);
         System.out.println("KIT URL = " + url);
         System.out.println("HttpMethod = " + httpMethod.name());
     }

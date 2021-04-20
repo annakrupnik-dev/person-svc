@@ -23,7 +23,7 @@ public class JsonUtils {
         try {
             if (objectToConvert != null) {
                 ObjectMapper mapper = new ObjectMapper();
-// convert object to JSON String
+                // convert object to JSON String
                 json = mapper.writeValueAsString(objectToConvert);
             }
         } catch (IOException e) {
