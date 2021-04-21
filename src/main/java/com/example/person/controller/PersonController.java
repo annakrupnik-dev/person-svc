@@ -30,11 +30,6 @@ public class PersonController {
     @Autowired
     private AddressRepository addressRepository;
 
-    @Autowired
-    public PersonController(PersonRepository personRepository) {
-        this.personRepository = personRepository;
-    }
-
     @GetMapping(value = "/persons", produces = MediaType.APPLICATION_JSON_VALUE)
     public PersonDataWrapper getAllPersons() {
         Iterable<Person> persons = personRepository.findAll();
