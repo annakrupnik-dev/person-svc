@@ -8,12 +8,18 @@ import com.example.person.repos.PersonRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -49,7 +55,7 @@ public class PersonController {
 
     @PostMapping(value = "/{addressId}/persons", consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
     public Person createPerson(@PathVariable (value = "addressId") Integer addressId,
-                                 @Valid @RequestBody Person person) {
+                               @Valid @RequestBody Person person) {
         return addressRepository.findById(addressId).map(address -> {
             person.setAddress(address);
             return personRepository.save(person);
@@ -58,8 +64,8 @@ public class PersonController {
 
     @PutMapping(value = "/{addressId}/persons/{personId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public Person updatePerson(@PathVariable (value = "addressId") Integer addressId,
-                                 @PathVariable (value = "personId") Integer personId,
-                                 @Valid @RequestBody Person inputData) {
+                               @PathVariable (value = "personId") Integer personId,
+                               @Valid @RequestBody Person inputData) {
         if(!addressRepository.existsById(addressId)) {
             throw new ResourceNotFoundException("AddressId " + addressId + " not found");
         }
@@ -76,11 +82,24 @@ public class PersonController {
 
     @DeleteMapping("/{addressId}/persons/{personId}")
     public ResponseEntity<?> deletePerson(@PathVariable (value = "addressId") Integer addressId,
-                                           @PathVariable (value = "personId") Integer personId) {
+                                          @PathVariable (value = "personId") Integer personId) {
         return personRepository.findByIdAndAddressId(personId, addressId).map(person -> {
             personRepository.delete(person);
             return ResponseEntity.ok().build();
         }).orElseThrow(() -> new ResourceNotFoundException("Person not found with id " + personId + " and addressId " + addressId));
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleValidationExceptions(
+            MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return errors;
     }
 
 }

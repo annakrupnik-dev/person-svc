@@ -49,7 +49,6 @@ public class JUnitTestUtil  {
         String responseBody = exchange.getBody();
         log(httpMethod, url);
         log(convertObjectToJson, exchange.getStatusCode(), responseBody);
-
         return responseBody;
     }
 
@@ -69,7 +68,7 @@ public class JUnitTestUtil  {
     private HttpHeaders setJsonAttributesToHeaders() {
         HttpHeaders headers = new HttpHeaders();
 
-        headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
         return headers;
     }

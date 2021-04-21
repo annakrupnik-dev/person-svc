@@ -8,6 +8,7 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.Max;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -17,7 +18,7 @@ import javax.validation.constraints.Size;
 @Entity // This tells Hibernate to make a table out of this class
 public class Person {
 
-    public Person(String name, Integer age, String gender, Integer height, Integer weight) {
+    public Person(@NotBlank(message = "Name cannot be null") @Size(max = 100) String name, @NotNull(message = "Age cannot be null") @Max(value = 150, message = "Age should not be greater than 150") Integer age, @NotBlank(message = "Gender cannot be null") String gender, Integer height, Integer weight) {
         this.name = name;
         this.age = age;
         this.gender = gender;
@@ -29,7 +30,7 @@ public class Person {
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Integer id;
 
-    @NotNull(message = "Name cannot be null")
+    @NotBlank(message = "Name cannot be null")
     @Size(max = 100)
     private String name;
 
@@ -37,7 +38,7 @@ public class Person {
     @Max(value = 150, message = "Age should not be greater than 150")
     private Integer age;
 
-    @NotNull(message = "Gender cannot be null")
+    @NotBlank(message = "Gender cannot be null")
     private String gender;
 
     private Integer height;

@@ -1,20 +1,16 @@
 package com.example;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
-/**
- *
- * @author IHH-Dor Naim
- *
- */
 public class JsonUtils {
 
     /**
      *
      * @param objectToConvert
-     *            or collection of object
      * @return String
      */
     public static String convertObjectToJson(Object objectToConvert) {
@@ -32,12 +28,31 @@ public class JsonUtils {
         }
         return json;
     }
-/*
-    @SuppressWarnings({ "unchecked" })
-    public static <T extends Object> T fromJsonString(String dataString,
-                                                                  Class<? extends Object> clazz) {
-        return (T) jsonString(dataString, null, clazz, null);
+    /**
+     *
+     * @param stringToConvert
+     * @return Object
+     */
+    public static <T extends Object> T fromJsonString(String stringToConvert,
+                                                      Class<? extends Object> clazz) {
+        return (T) jsonString(stringToConvert,  clazz, null);
     }
+
+    static Object jsonString(String dataString,
+                             Class<? extends Object> clazz, TypeReference<? extends Object> type) {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        try {
+            return mapper.readValue(dataString, clazz);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
+
+
+/*
+
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static <T extends List<? extends Object>> T fromJsonString(String dataString,

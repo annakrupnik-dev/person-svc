@@ -1,7 +1,7 @@
 <html>
 <body>
 <div>
-    <form method="post">
+    <form method="post" action="/addresses/6/persons">
         <input type="text" name="name" placeholder="name" />
         <input type="text" name="age" placeholder="age" />
         <input type="text" name="gender" placeholder="gender" />
@@ -12,13 +12,6 @@
 </div>
 <div>
     Person List
-</div>
-<div>
-    <b>Filter</b>
-    <form method="get" action="personByName">
-        <input type="text" name="name" placeholder="name" />
-        <button type="submit" >Find person</button>
-    </form>
 </div>
 {{#persons}}
 <div>
