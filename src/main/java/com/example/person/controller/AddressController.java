@@ -2,12 +2,8 @@ package com.example.person.controller;
 
 import com.example.person.domain.Address;
 import com.example.person.domain.AddressDataWrapper;
-import com.example.person.domain.Person;
-import com.example.person.domain.PersonDataWrapper;
 import com.example.person.exception.ResourceNotFoundException;
 import com.example.person.repos.AddressRepository;
-import com.example.person.repos.PersonRepository;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

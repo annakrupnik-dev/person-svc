@@ -8,21 +8,13 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class AddressControllerTest {
 
-    private JUnitTestUtil testUtil = new JUnitTestUtil();
+    private final JUnitTestUtil testUtil = new JUnitTestUtil();
 
     @Test
     public void getAllAddresses()  {
