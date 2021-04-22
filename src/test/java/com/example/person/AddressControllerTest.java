@@ -34,7 +34,8 @@ public class AddressControllerTest {
         //Address address = new Address("Green","Tel Aviv","Israel",999);
         //Address address = new Address("Yellow","Raanana","Israel",998);
         //Address address = new Address("Red Apple","New York","USA",1000);
-        Address address = new Address("Blue","Paris","France",1020);
+        //Address address = new Address("Blue","Paris","France",1020);
+        Address address = new Address("Orange","Toronto","Kanada",2020);
 
         String body = testUtil.executePostRequest(url,address);
 
@@ -48,8 +49,8 @@ public class AddressControllerTest {
     @Test
     public void updateAddresses()  {
 
-        String url ="/addresses/5";
-        Address address = new Address("Yellow","Haifa","Israel",790);
+        String url ="/addresses/27";
+        Address address = new Address("Orange","Toronto","Canada",2020);
 
         String body = testUtil.executePutRequest(url,address);
 
@@ -63,7 +64,7 @@ public class AddressControllerTest {
     @Test
     public void deleteAddresses()  {
 
-        String url ="/addresses/7";
+        String url ="/addresses/26";
 
         String body = testUtil.executeDeleteRequest(url);
 

@@ -1,10 +1,10 @@
 package com.example.person.controller;
 
+import com.example.person.ErrorResponse;
 import com.example.person.domain.Person;
 import com.example.person.domain.PersonDataWrapper;
 import com.example.person.exception.ResourceNotFoundException;
-import com.example.person.repos.AddressRepository;
-import com.example.person.repos.PersonRepository;
+import com.example.person.service.PersonService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +14,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,66 +27,41 @@ import java.util.Map;
 public class PersonController {
 
     private final static Logger logger =LoggerFactory.getLogger(PersonController.class);
-    @Autowired
-    private PersonRepository personRepository;
-    @Autowired
-    private AddressRepository addressRepository;
 
-    @GetMapping(value = "/persons", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Autowired
+    private PersonService personService;
+
+     @GetMapping(value = "/persons", produces = MediaType.APPLICATION_JSON_VALUE)
     public PersonDataWrapper getAllPersons() {
-        Iterable<Person> persons = personRepository.findAll();
-        PersonDataWrapper personDataWrapper = new PersonDataWrapper();
-        personDataWrapper.setPersons((List<Person>) persons);
-        return personDataWrapper;
+        return personService.getAllPersons();
     }
 
     @GetMapping(value = "/persons/{personId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Person getPersonById(@PathVariable (value = "personId") Integer personId) {
-
-        return personRepository.findById(personId)
-                .orElseThrow(() -> new ResourceNotFoundException("PersonId " + personId + "not found"));
-
+        return personService.getPersonById(personId);
     }
 
     @PostMapping(value = "/{addressId}/persons", consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
     public Person createPerson(@PathVariable (value = "addressId") Integer addressId,
                                @Valid @RequestBody Person person) {
-        return addressRepository.findById(addressId).map(address -> {
-            person.setAddress(address);
-            return personRepository.save(person);
-        }).orElseThrow(() -> new ResourceNotFoundException("AddressId " + addressId + " not found"));
+        return personService.createPerson(addressId,person);
     }
 
     @PutMapping(value = "/{addressId}/persons/{personId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public Person updatePerson(@PathVariable (value = "addressId") Integer addressId,
                                @PathVariable (value = "personId") Integer personId,
                                @Valid @RequestBody Person inputData) {
-        if(!addressRepository.existsById(addressId)) {
-            throw new ResourceNotFoundException("AddressId " + addressId + " not found");
-        }
-
-        return personRepository.findById(personId).map(person -> {
-            person.setName(inputData.getName());
-            person.setHeight(inputData.getHeight());
-            person.setGender(inputData.getGender());
-            person.setWeight(inputData.getWeight());
-            person.setAge(inputData.getAge());
-            return personRepository.save(person);
-        }).orElseThrow(() -> new ResourceNotFoundException("PersonId " + personId + "not found"));
+        return personService.updatePerson(addressId,personId,inputData);
     }
 
     @DeleteMapping("/{addressId}/persons/{personId}")
-    public ResponseEntity<?> deletePerson(@PathVariable (value = "addressId") Integer addressId,
-                                          @PathVariable (value = "personId") Integer personId) {
-        return personRepository.findByIdAndAddressId(personId, addressId).map(person -> {
-            personRepository.delete(person);
-            return ResponseEntity.ok().build();
-        }).orElseThrow(() -> new ResourceNotFoundException("Person not found with id " + personId + " and addressId " + addressId));
+    public boolean deletePerson(@PathVariable (value = "addressId") Integer addressId,
+                                @PathVariable (value = "personId") Integer personId) {
+        return personService.deletePerson(addressId,personId);
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleValidationExceptions(
+    public final ResponseEntity<Map<String, String>> handleValidationExceptions(
             MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
@@ -92,7 +69,23 @@ public class PersonController {
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
-        return errors;
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public final ResponseEntity<ErrorResponse> handleNotFoundExceptions(Exception ex, WebRequest request) {
+        List<String> details = new ArrayList<>();
+        details.add(ex.getLocalizedMessage());
+        ErrorResponse error = new ErrorResponse("Resource not found", details);
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public final ResponseEntity<ErrorResponse> handleAllExceptions(Exception ex, WebRequest request) {
+        List<String> details = new ArrayList<>();
+        details.add(ex.getLocalizedMessage());
+        ErrorResponse error = new ErrorResponse("Internal Server Error", details);
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

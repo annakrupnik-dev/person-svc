@@ -5,10 +5,13 @@ import com.example.JsonUtils;
 import com.example.person.domain.Gender;
 import com.example.person.domain.Person;
 import com.example.person.domain.PersonDataWrapper;
+import com.example.person.repos.AddressRepository;
+import com.example.person.repos.PersonRepository;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.HttpClientErrorException;
 
@@ -17,6 +20,12 @@ import org.springframework.web.client.HttpClientErrorException;
 public class PersonControllerTest {
 
     private final JUnitTestUtil testUtil = new JUnitTestUtil();
+
+    @MockBean
+    private AddressRepository addressRepository;
+
+    @MockBean
+    private PersonRepository personRepository;
 
     @Test
     public void getAllPersons()  {
@@ -33,7 +42,7 @@ public class PersonControllerTest {
     @Test
     public void getPersonById()  {
 
-        String url ="/addresses/persons/10";
+        String url ="/addresses/persons/100";
         String body = testUtil.executeGetRequest(url);
         Assert.assertNotNull(body);
 
@@ -68,10 +77,10 @@ public class PersonControllerTest {
     @Test
     public void createPerson()  {
 
-        String url ="/addresses/5/persons";
+        String url ="/addresses/8/persons";
         //Person person = new Person("Moshe",28, Gender.MALE.name(),178,68);
         //Person person = new Person("Pit",32, Gender.MALE.name(),185,80);
-        Person person = new Person("Dan",4, Gender.MALE.name(),95,18);
+        Person person = new Person("Kristina",40, Gender.FEMALE.name(),169,59);
         String body = testUtil.executePostRequest(url,person);
 
         Person obj= JsonUtils.fromJsonString(body,Person.class);
@@ -85,7 +94,7 @@ public class PersonControllerTest {
     public void updatePerson()  {
 
         String url ="/addresses/5/persons/18";
-        Person person = new Person("Dany",7, Gender.MALE.name(),95,18);
+        Person person = new Person("Dany",7, Gender.MALE.name(),95,20);
 
         String body = testUtil.executePutRequest(url,person);
 
@@ -100,7 +109,7 @@ public class PersonControllerTest {
     public void updatePersonNotValidData()  {
 
         String url ="/addresses/50/persons/18";
-        Person person = new Person("Dany",7, Gender.MALE.name(),95,18);
+        Person person = new Person("Dany",7, Gender.MALE.name(),95,19);
 
         boolean thrown = false;
         int statusNotFound=404;

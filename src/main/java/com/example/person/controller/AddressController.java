@@ -1,9 +1,10 @@
 package com.example.person.controller;
 
+import com.example.person.ErrorResponse;
 import com.example.person.domain.Address;
 import com.example.person.domain.AddressDataWrapper;
 import com.example.person.exception.ResourceNotFoundException;
-import com.example.person.repos.AddressRepository;
+import com.example.person.service.AddressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +14,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,44 +27,32 @@ import java.util.Map;
 public class AddressController {
 
     private final static Logger logger =LoggerFactory.getLogger(AddressController.class);
+
     @Autowired
-    private AddressRepository addressRepository;
+    private AddressService addressService;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public AddressDataWrapper getAllAddresses() {
-        Iterable<Address> addresses = addressRepository.findAll();
-        AddressDataWrapper addressDataWrapper = new AddressDataWrapper();
-        addressDataWrapper.setAddresses((List<Address>) addresses);
-        return addressDataWrapper;
+        return addressService.getAllAddresses();
     }
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public Address createAddress(@Valid @RequestBody Address address) {
-        return addressRepository.save(address);
+        return addressService.createAddress(address);
     }
 
     @PutMapping(value = "/{addressId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public Address updateAddress(@PathVariable Integer addressId, @Valid @RequestBody Address inputData) {
-        return addressRepository.findById(addressId).map(address -> {
-            address.setCity(inputData.getCity());
-            address.setState(inputData.getState());
-            address.setStreet(inputData.getStreet());
-            address.setZipcode(inputData.getZipcode());
-            return addressRepository.save(address);
-        }).orElseThrow(() -> new ResourceNotFoundException("AddressId " + addressId + " not found"));
+        return addressService.updateAddress(addressId,inputData);
     }
 
     @DeleteMapping("/{addressId}")
-    public ResponseEntity<?> deleteAddress(@PathVariable Integer addressId) {
-        return addressRepository.findById(addressId).map(address -> {
-            addressRepository.delete(address);
-            return ResponseEntity.ok().build();
-        }).orElseThrow(() -> new ResourceNotFoundException("AddressId " + addressId + " not found"));
+    public boolean deleteAddress(@PathVariable Integer addressId) {
+        return addressService.deleteAddress(addressId);
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleValidationExceptions(
+    public final ResponseEntity<Map<String, String>> handleValidationExceptions(
             MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
@@ -69,6 +60,22 @@ public class AddressController {
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
-        return errors;
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public final ResponseEntity<ErrorResponse> handleNotFoundExceptions(Exception ex, WebRequest request) {
+        List<String> details = new ArrayList<>();
+        details.add(ex.getLocalizedMessage());
+        ErrorResponse error = new ErrorResponse("Resource not found", details);
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public final ResponseEntity<ErrorResponse> handleAllExceptions(Exception ex, WebRequest request) {
+        List<String> details = new ArrayList<>();
+        details.add(ex.getLocalizedMessage());
+        ErrorResponse error = new ErrorResponse("Internal Server Error", details);
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
