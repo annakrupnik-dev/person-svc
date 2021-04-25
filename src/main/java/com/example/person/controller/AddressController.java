@@ -5,6 +5,7 @@ import com.example.person.domain.Address;
 import com.example.person.domain.AddressDataWrapper;
 import com.example.person.exception.ResourceNotFoundException;
 import com.example.person.service.AddressService;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +25,9 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/addresses")
+@AllArgsConstructor
 public class AddressController {
 
-    private final static Logger logger =LoggerFactory.getLogger(AddressController.class);
-
-    @Autowired
     private AddressService addressService;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)

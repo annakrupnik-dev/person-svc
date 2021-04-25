@@ -5,16 +5,15 @@ import com.example.person.domain.PersonDataWrapper;
 import com.example.person.exception.ResourceNotFoundException;
 import com.example.person.repos.AddressRepository;
 import com.example.person.repos.PersonRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 @Service
+@AllArgsConstructor
 public class PersonServiceImpl implements PersonService{
 
-    @Autowired
     private PersonRepository personRepository;
-    @Autowired
     private AddressRepository addressRepository;
 
     @Override

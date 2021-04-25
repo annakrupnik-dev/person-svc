@@ -4,15 +4,16 @@ import com.example.person.domain.Address;
 import com.example.person.domain.AddressDataWrapper;
 import com.example.person.exception.ResourceNotFoundException;
 import com.example.person.repos.AddressRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class AddressServiceImpl implements AddressService{
 
-    @Autowired
     private AddressRepository addressRepository;
 
     public AddressDataWrapper getAllAddresses() {

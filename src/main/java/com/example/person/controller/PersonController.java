@@ -5,6 +5,7 @@ import com.example.person.domain.Person;
 import com.example.person.domain.PersonDataWrapper;
 import com.example.person.exception.ResourceNotFoundException;
 import com.example.person.service.PersonService;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,15 +24,13 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping("/addresses")
 public class PersonController {
 
-    private final static Logger logger =LoggerFactory.getLogger(PersonController.class);
-
-    @Autowired
     private PersonService personService;
 
-     @GetMapping(value = "/persons", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/persons", produces = MediaType.APPLICATION_JSON_VALUE)
     public PersonDataWrapper getAllPersons() {
         return personService.getAllPersons();
     }
